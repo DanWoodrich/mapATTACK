@@ -6,7 +6,8 @@ start.time <- Sys.time()
 #daniel.woodrich@noaa.gov
 #Create multiplots and gifs that summarize presence. Automated: should be able to handle varying species, years, and gaps in data, over different regions. Make sure dataset is formatted a la AWCHX_LTMonthlymapR.csv in ~/input_files. Make sure variables are pointing to the layers you want, and layers you do not want are removed from the code. 
 
-setwd("C:/Rtools")
+dir.create("C:/R_map_status")
+setwd("C:/R_map_status")
 if(!file.exists("map_run_status.txt")){
 #install mapping packages. Must be done once when running on a new computer and can then be commented out. 
 install.packages("raster")
@@ -48,6 +49,18 @@ library(grid)
 
 
 #define useful functions
+
+points2polygons <- function(df,data) {
+  get.grpPoly <- function(group,ID,df) {
+    Polygon(coordinates(df[df$id==ID & df$group==group,]))
+  }
+  get.spPoly  <- function(ID,df) {
+    Polygons(lapply(unique(df[df$id==ID,]$group),get.grpPoly,ID,df),ID)
+  }
+  spPolygons  <- SpatialPolygons(lapply(unique(df$id),get.spPoly,df))
+  SpatialPolygonsDataFrame(spPolygons,match.ID=T,data=data)
+}
+
 scale_x_longitude <- function(xmin=-180, xmax=180, step=1, ...) {
   xbreaks <- seq(xmin,xmax,step)
   xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 0, parse(text=paste0(-1*x,"*W")), ifelse(x > 0, parse(text=paste0(x,"*E")),x))))
@@ -330,10 +343,10 @@ plot_xyax_mdy<- function(pdatad_sp_y_d,MAP_df,AKCrop,RusCrop,CHXarea,AWarea,rast
 
 
 #OPTIONAL USER INPUTS. Defaults specified. 
-run_name <- "CHAOZ-X map run final 2"                             #name your run. Unique names will generate a new folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
-test_mode <- "n"                                                    #"y" or "n". subsets the data to first two years and first two species. Set to y to give a sample of all figure, recommend doing this before fully plotting.
-run_type <- "gifs"                                             #"slides","gifs", or "both" 
-gif_interval <- "week"                                          #"week" or "month" or "both"
+run_name <- "dan shapefile"                             #name your run. Unique names will generate a new folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
+test_mode <- "y"                                                    #"y" or "n". subsets the data to first two years and first two species. Set to y to give a sample of all figure, recommend doing this before fully plotting.
+run_type <- "both"                                             #"slides","gifs", or "both" 
+gif_interval <- "month"                                          #"week" or "month" or "both"
 change_gif_speed <- "n"                                           #"y" or "n". update gif speeds for current run based on parameters in below block. much faster than replotting. "y" on this option skips all plotting sections. 
 
 
@@ -362,10 +375,12 @@ image_width <-  9.3902                                              #width of ou
 image_correction_height <- ((0.00129*axis_text_size_slides)+1.007246) #correction which changes plot size so that map regions are the same w & w/o axes. Eventually, find math relationship and base it on axis text size. Default 1.02266 for CHAOZ-X dimensions and size 12 text. 
 image_correction_width <- ((0.0032*axis_text_size_slides)+1.007246)   #correction which changes plot size so that map regions are the same w & w/o axes. Eventually, find math relationship and base it on axis text size. Default 1.05405405 for CHAOZ-X dimensions and size 12 text.                  
 gifspeed_month <- 90                                                     #larger numbers are slower, unsure of units. CHAOZ-X default = 160.
+framerate_month <- 1                                                  #fps
 gifspeed_week <- 60                                                  #larger numbers are slower, unsure of units. CHAOZ-X default = 160.
+framerate_week <- 2                                                   #fps
 gif_month_res <- 100
 gif_week_res <- 60
-slide_res <- 75
+slide_res <- 64
 custom_extent <- "n"                                                  #"y" or "n". Will default to extent of etopo1bedrk.tif file if "n".
 
 
@@ -382,12 +397,13 @@ MAP <- raster(paste(input_folder,"/Rasters/","etopo1bedrk1.tif",sep=""))
 #Import chukchi and AW region shapefile. 
 CHXarea <- readOGR(dsn=paste(input_folder,"/Shapefiles",sep=""), layer="CHX_area2r")
 AWarea <- readOGR(dsn=paste(input_folder,"/Shapefiles",sep=""), layer="AW_area2r")
+
 #import chukchi and AW study area shapefiles. From ArcGIS: Right click on layer, go to data, select  "all features in view extent", "same crs as data frame" options. MAke sure saved name matches paths
 AKCont <- readOGR(dsn=paste(input_folder,"/Shapefiles",sep=""), layer="AlaskaCont")
 RusCont <- readOGR(dsn=paste(input_folder,"/Shapefiles",sep=""), layer="RussiaCont")
 #presence data (turn to file.choose() in final vers)
-pdata <- read.csv(paste(input_folder,"/","Data frame","/","AWCHX_LTMonthlymapR.csv",sep=""))
-pdatad <- read.csv(paste(input_folder,"/","Data frame","/","AWCHX_LTWeeklymapR.csv",sep=""))
+pdata <- read.csv(paste(input_folder,"/","Data frame","/","AWCHX_LTMonthlymapRnew.csv",sep=""))
+pdatad <- read.csv(paste(input_folder,"/","Data frame","/","AWCHX_LTWeeklymapRNEW.csv",sep=""))
 
 ########################Map data processing#######################
 
@@ -398,9 +414,13 @@ MAP <- (MAP*-1)+1
 #transform data to create a beautiful depth illusion
 MAP <- log(MAP,2)
 
+
+
 #reproject shapefiles to match raster map projection. 
+
 CHXarea <- spTransform(CHXarea,"+proj=longlat")
 AWarea <- spTransform(AWarea,"+proj=longlat")
+benhot <- spTransform(benhot,"+proj=longlat")
 AKCont_longlat <- spTransform(AKCont,"+proj=longlat")
 RusCont_longlat <- spTransform(RusCont,"+proj=longlat")
 
@@ -674,7 +694,7 @@ for(p in unique(pdata$Species)){
       print(plot_blankn(t,MAP_df,AKCrop,RusCrop,CHXarea,AWarea,raster_color_palette,longlow,longhigh,longbreak,latlow,lathigh,latbreak,low_effort_threshold,legend_position,zero_value_scale_position,no_presence_symbol,legend_text_size,gridlines_transparency,month_label_size,Boundaries,monthvec,month_label_position))
       dev.off()
     }
-    png(paste(sp_folder,"/",substr(p,1,3),as.character(x),".png",sep=""),width=((image_width*image_correction_width)+image_width*3),height=((image_height*image_correction_height)+(image_height*2)),units="in",res=(slide_res-25))
+    png(paste(sp_folder,"/",substr(p,1,3),as.character(x),".png",sep=""),width=((image_width*image_correction_width)+image_width*3),height=((image_height*image_correction_height)+(image_height*2)),units="in",res=(slide_res))
     par(mai=c(0.1,0.1,0.1,0.1), oma=c(0,0,0,0),xpd=NA)
     layout(matrix(1:12, ncol=4, byrow=TRUE),widths=c((image_width*image_correction_width),image_width,image_width,image_width),heights=c((image_height*image_correction_height),image_height,image_height))
     plot(NA,xlim=0:1,ylim=0:1,axes=0,bty="n",xaxs="i",yaxs="i",ylab="")
@@ -795,7 +815,7 @@ if(gif_interval == "month"|gif_interval == "both"){
         dummy_row <- data.frame(as.character(pdata_sp_y_m[1,1])," ",scale_symbol_position_ind[2],scale_symbol_position_ind[1],pdata_sp_y_m[1,5],pdata_sp_y_m[1,6],pdata_sp_y_m[1,7],no_presence_symbol_size,0,low_effort_threshold+1,"yes",pdata_sp_y_m$Dateformat[1])
         colnames(dummy_row)<- colnames(pdata_sp_y_m)
         pdata_sp_y_m <- rbind(pdata_sp_y_m,dummy_row)
-        finalfilename <- paste(counter,substr(q,1,3),"_",substr(monthvec[s],1,3),substr(as.character(r),3,4),sep="")
+        finalfilename <- paste("img",counter,sep="")
         png(paste(sp_folder,"/",finalfilename,".png",sep=""),width=(image_width*1.054054),height=(image_height*1.02266),units="in",res=gif_month_res) 
         print(plot_xyax_wyear(pdata_sp_y_m,MAP_df,AKCrop,RusCrop,CHXarea,AWarea,raster_color_palette,longlow,longhigh,longbreak,latlow,lathigh,latbreak,low_effort_threshold,legend_position,zero_value_scale_position,no_presence_symbol,legend_text_size,gridlines_transparency,month_label_size,Boundaries,monthvec,axis_text_size_gif,month_and_year_label_position))
         dev.off()
@@ -817,7 +837,7 @@ if(gif_interval == "month"|gif_interval == "both"){
     }
     setwd(sp_folder)
     system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/imagemagick/magick.exe" -delay ',gifspeed_month,' *.png ',q,"_month.gif",sep=""))
-    #file.remove(list.files(pattern=".png"))
+    system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_month,' -i "img%04d.png" -codec:a libmp3lame ',q,'_month_movie.avi',sep=""))
     system(paste(shQuote("//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/gifsicle/gifsicle.exe",type="cmd"), " gifsicle -O3 ",q,"_month.gif -o ",q,"_month_optimized.gif",sep=""))
     file.remove(list.files(pattern=paste(q,"_month.gif",sep="")))
   }
@@ -842,7 +862,7 @@ if(gif_interval == "month"|gif_interval == "both"){
           colnames(dummy_row1)<- colnames(pdatad_sp_y_d)
           colnames(dummy_row2)<- colnames(pdatad_sp_y_d)
           pdatad_sp_y_d <- rbind(pdatad_sp_y_d,dummy_row1,dummy_row2)
-          finalfilename <- paste(counter,substr(q,1,3),"_",vapply(strsplit(s,"/"), `[`, 1, FUN.VALUE=character(1)),"_",vapply(strsplit(s,"/"), `[`, 2, FUN.VALUE=character(1)),"_", as.character(r),sep="")
+          finalfilename <- paste("img",counter,sep="")
           png(paste(sp_folder,"/",finalfilename,".png",sep=""),width=(image_width*1.054054),height=(image_height*1.02266),units="in",res=gif_week_res) 
           print(plot_xyax_mdy(pdatad_sp_y_d,MAP_df,AKCrop,RusCrop,CHXarea,AWarea,raster_color_palette,longlow,longhigh,longbreak,latlow,lathigh,latbreak,low_effort_threshold,legend_position,zero_value_scale_position,no_presence_symbol,legend_text_size,gridlines_transparency,month_label_size,Boundaries,monthvec,axis_text_size_gif,month_and_year_label_position))
           dev.off()
@@ -867,7 +887,7 @@ if(gif_interval == "month"|gif_interval == "both"){
       }
       setwd(sp_folder)
       system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/imagemagick/magick.exe" -delay ',gifspeed_week,' *.png ',q,"_week.gif",sep=""))
-      #file.remove(list.files(pattern=".png"))
+      system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_week,' -i "img%05d.png" -codec:a libmp3lame ',q,'_week_movie.avi',sep=""))
       system(paste(shQuote("//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/gifsicle/gifsicle.exe",type="cmd"), " gifsicle -O3 ",q,"_week.gif -o ",q,"_week_optimized.gif",sep=""))
       file.remove(list.files(pattern=paste(q,"_week.gif",sep="")))
     }
@@ -925,3 +945,9 @@ print(time.taken)
 #setwd(workdir) 
 #system(paste(shQuote("//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/gifsicle/gifsicle.exe",type="cmd"), "gifsicle -O3 Gunshot.gif -o Gunshot_optimized.gif"))
 
+#test area:
+#q <- "Gunshot"
+#sp_folder <- paste(gif_folder_m,"/Gunshot",sep="")
+#setwd(sp_folder)
+#system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_month,' -i "img%04d.png" -codec:a libmp3lame ',q,'_month_movie.avi',sep=""))
+#system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_week,' -i "img%05d.png" -codec:a libmp3lame ',q,'_week_movie.avi',sep=""))
