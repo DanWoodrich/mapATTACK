@@ -85,10 +85,19 @@ lighten <- function(color, factor=1.4){
   col
 }
 
-rotate_df_long <- function(df){
+rotate_df_trim_long <- function(df){
   df <- within(df, {
     long <- ifelse(long < 0, long + 360, long)
-    long <- ifelse((long < Boundaries[1]) | (long > Boundaries[2]), NA, long)
+    long <- ifelse((long < Boundaries[1]),Boundaries[1],long)
+    long <- ifelse((long > Boundaries[2]),Boundaries[2],long)
+  })
+  return(df)
+}
+
+trim_lat <- function(df){
+  df <- within(df, {
+    lat <- ifelse((lat < Boundaries[3]),Boundaries[3],lat)
+    lat <- ifelse((lat > Boundaries[4]),Boundaries[4],lat)
   })
   return(df)
 }
@@ -195,7 +204,7 @@ plot_data <- function(pdata_sp_y_m,Boundaries,longlow,longhigh,longbreak,latlow,
 
 
 #OPTIONAL USER INPUTS. Defaults specified. 
-run_name <- "N Bering Chukchi and Beaufort Fall 2017 v4 color test 2"      #name your run. Unique names will generate a new folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
+run_name <- "N Bering Chukchi and Beaufort Fall 2017 Timed run"      #name your run. Unique names will generate a new folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
 run_type <- "slides"                                             #"slides","gifs", or "both"
 gif_interval <- "month"                                          #"week" or "month" or "both"
 test_params <- "n"                                                   #quickly display a single plot to view specified parameters
@@ -262,14 +271,14 @@ raster_color_palette <- c("white",lighten("skyblue1"),darken("skyblue1"),"steelb
 #Import chukchi and AW region shapefile. 
 Region_vector1 <- c("AW_area2r","CHX_area2r")
 #manually define region colors, in order that you type them in above. Must be same length 
-Region_colors <- c("yellow","red") 
+Region_colors <- c("orange","purple") 
 
 
 #import land (polygon) shapefiles. 
 Land_vector1 <- c("AKBering","RusIslands")
 
 #presence data 
-pdata <- read.csv(paste(input_folder,"/","Data frame","/","ChuknBermonthlymapRnew.csv",sep="")) #monthly
+pdata <- read.csv(paste(input_folder,"/","Data frame","/","ChuknBerMonthlymapRnew.csv",sep="")) #monthly
 colnames(pdata) <- c('species','mooringName','lat','long','year','month', 'date','percDaysWcalls', 'X.daysWcalls','X.daysWrecs')
 pdatad <- read.csv(paste(input_folder,"/","Data frame","/","AWCHX_LTWeeklymapRNEW.csv",sep="")) #weekly
 colnames(pdatad) <- c('species','mooringName','lat','long','year','week', 'date','percBinsWcalls', 'X.binsWcalls','X.binsWrecs')
@@ -323,8 +332,10 @@ if(custom_extent=="y"){
 
 longlats2 <- lapply(longlats1,fortify)
 longlats2reg <- lapply(longlats1reg,fortify)
-longlats3 <- lapply(longlats2,rotate_df_long)
-longlats3reg <- lapply(longlats2reg,rotate_df_long)
+longlats3 <- lapply(longlats2,rotate_df_trim_long)
+longlats3reg <- lapply(longlats2reg,rotate_df_trim_long )
+longlats3 <- lapply(longlats3,trim_lat)
+longlats3reg <- lapply(longlats3reg,trim_lat)
 
 for(i in 1:length(Land_vector1)){
   group_change <- as.numeric(longlats3[[i]]$group)
@@ -346,10 +357,6 @@ for(i in 1:length(Region_vector1)){
 
 Land <- do.call(rbind,longlats3)
 Reg <- do.call(rbind,longlats3reg)
-Land <- subset(Land, !is.na(long))
-Reg <- subset(Reg, !is.na(long))
-Land <- subset(Land, Land$lat>Boundaries[3] & Land$lat<Boundaries[4])
-Reg <- subset(Reg, Reg$lat>Boundaries[3] & Reg$lat<Boundaries[4])
 
 Reg$color <- factor(Reg$color,levels=Region_colors)
 
