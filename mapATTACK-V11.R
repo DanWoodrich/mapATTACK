@@ -272,7 +272,7 @@ ice<-"y" #NEW y/n
 icefast<-"y" #plots quicker but sloppier. Disregard if ice=="n"
 
 run_slides                <-"n"   #NEW
-run_seasonslides          <-"n"   #NEW
+run_seasonslides          <-"y"   #NEW
 run_month_gifs_and_videos <-"n"   #NEW
 run_week_gifs_and_videos  <-"n"   #NEW
 
@@ -337,8 +337,8 @@ raster_color_palette <- c("white",lighten("skyblue1"),darken("skyblue1"),"steelb
 dotcolor <- "gold1"                                           #color of presence circles. 
 ice_color <-rgb(1,1,1,ice_transparency)                                   #r g and b values. 4th argument specifies transparency. 
 Region_colors <- c("deeppink", "green","gold1","lightpink") #steelblue4 if hiding RWCH for Bering                                 #NEW       #manually define region colors, in order that you type them. Must be same length as region_vector1
-Seasonnamevec<- c("Winter","Spring","Fall","Summer")       #NEW       #Manually define month regions for season slide plot. Must be same length as Seasonnamevec 
-Seasonvec <- c("Jan-Mar","Apr-Jun","Oct-Dec","Jul-Sep")    #NEW  #month must be 3 letters     #Format c("Mmm-Mmm","Mmm-Mmm"). Do not overlap months. Fine to cross over years (ie Dec-Mar). Must be same length as Seasonnamevec
+Seasonnamevec<- c("Spring","Summer","Winter")       #NEW       #Manually define month regions for season slide plot. Must be same length as Seasonnamevec 
+Seasonvec <- c("Mar-Jun","Jul-Oct","Nov-Feb")    #NEW  #month must be 3 letters     #Format c("Mmm-Mmm","Mmm-Mmm"). Do not overlap months. Fine to cross over years (ie Dec-Mar). Must be same length as Seasonnamevec
 
 ###################import data files.###################################################
 
@@ -745,7 +745,7 @@ for(a in unique(pdata$species)){
           nammme<- c(paste(data_plt[1,15]),paste(monthvec[data_plt[1,6]],sep=""))
           #LOAD ICE FILE HERE. nammme has m and y info 
           if(ice=="y"){
-          Ice_file<-Import_ice_shp(paste(input_folder,"/Shapefiles_ice_extent/",nammme[2],"/extent_N_",nammme[1],sprintf("%02d", data_plt[1,6]),"_polygon_v3.0",sep=""),paste("extent_N_",nammme[1],sprintf("%02d", data_plt[1,6]),"_polygon_v3.0",sep=""))
+          Ice_file<-Import_ice_shp(paste(input_folder,"/Shapefiles_ice_extent/",nammme[2],"/extent_N_",data_plt[1,5],sprintf("%02d", data_plt[1,6]),"_polygon_v3.0",sep=""),paste("extent_N_",data_plt[1,5],sprintf("%02d", data_plt[1,6]),"_polygon_v3.0",sep=""))
           Ice_file<-smooth(Ice_file,method = "chaikin")
           Ice_file<-Unproject_shp(Ice_file)
           Ice_file<-fortify(Ice_file)
