@@ -272,8 +272,8 @@ ice<-"y" #NEW y/n
 icefast<-"y" #plots quicker but sloppier. Disregard if ice=="n"
 
 run_slides                <-"n"   #NEW
-run_seasonslides          <-"y"   #NEW
-run_month_gifs_and_videos <-"n"   #NEW
+run_seasonslides          <-"n"   #NEW
+run_month_gifs_and_videos <-"y"   #NEW
 run_week_gifs_and_videos  <-"n"   #NEW
 
 
@@ -880,11 +880,13 @@ nammme<-c("1","2")
       }
     }
     setwd(sp_folder)
-    system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/imagemagick/magick.exe" -delay ',gifspeed_month,' *.tif ',f,"_month1.gif",sep=""))
-    system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_month,' -i "img%04d.tif" -codec:a libmp3lame ',f,'_month_video.avi',sep=""))
-    system(paste(shQuote("//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/gifsicle/gifsicle.exe",type="cmd"), " gifsicle -O3 ",f,"_month1.gif -o ",f,"_month.gif",sep=""))
+    system(paste('"C:/Program Files/ImageMagick-7.0.8-Q16/magick.exe" -delay ',gifspeed_month,' *.tif ',f,'_month1.gif',sep=""))
+    system(paste('"D:/DDownloads/ffmpeg-20190122-87c165c-win64-static/ffmpeg-20190122-87c165c-win64-static/bin/ffmpeg.exe" -r ',framerate_month,' -i "img%04d.tif" -codec:a libmp3lame ',f,'_month_video.avi',sep=""))
+   # system(paste(shQuote("E:/mapATTACK/Accessory code/gifsicle.exe",type="cmd"), " gifsicle -O3 ",f,"_month1.gif -o ",f,"_month.gif",sep=""))
+    #system(paste("gifsicle -O3 --colors 256 ",f,"_month1.gif -o ",f,"_month.gif"," -w",sep=""))
+    
     file.remove(list.files(pattern=paste(".tif",sep="")))
-    file.remove(list.files(pattern=paste(f,"_month1.gif",sep="")))
+    #file.remove(list.files(pattern=paste(f,"_month1.gif",sep="")))
   }
 }
 
@@ -962,11 +964,11 @@ nammme<-c("1","2")
       }
     }
     setwd(sp_folder)
-    system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/imagemagick/magick.exe" -delay ',gifspeed_week,' *.tif ',i,"_week1.gif",sep=""))
-    system(paste('"//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/ffmpeg/ffmpeg.exe" -r ',framerate_week,' -i "img%05d.tif" -codec:a libmp3lame ',i,'_week_video.avi',sep=""))
-    system(paste(shQuote("//nmfs/akc-nmml/CAEP/Acoustics/ArcMAP/Mapping with R/Scripts/Accesory Code/gifsicle/gifsicle.exe",type="cmd"), " gifsicle -O3 ",i,"_week1.gif -o ",i,"_week.gif",sep=""))
+    system(paste('"C:/Program Files/ImageMagick-7.0.8-Q16/magick.exe" -delay ',gifspeed_week,' *.tif ',i,"_week1.gif",sep=""))
+    system(paste('"D:/DDownloads/ffmpeg-20190122-87c165c-win64-static/ffmpeg-20190122-87c165c-win64-static/bin/ffmpeg.exe" -r ',framerate_week,' -i "img%05d.tif" -codec:a libmp3lame ',i,'_week_video.avi',sep=""))
+    #system(paste(shQuote("E:/mapATTACK/Accessory Code/gifsicle.exe",type="cmd"), " gifsicle -O3 ",i,"_week1.gif -o ",i,"_week.gif",sep=""))
     file.remove(list.files(pattern=paste(".tif",sep="")))
-    file.remove(list.files(pattern=paste(i,"_week1.gif",sep="")))
+    #file.remove(list.files(pattern=paste(i,"_week1.gif",sep="")))
   }
 }
 
