@@ -196,8 +196,8 @@ plot_data <- function(data_plt,Boundaries,longlow,longhigh,longbreak,latlow,lath
     {if(maptype!="ss") scale_y_latitude(ymin=latlow, ymax=lathigh, step=latbreak,namme=NULL) else scale_y_latitude(ymin=latlow, ymax=lathigh, step=latbreak,namme=nammme[2])}+
     {if((mapplace=="topleft"))                         
       {if(lllegend=="notdone") 
-        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
-            axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+            axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
             axis.text=element_text(size=axis_text_size_plt),
             plot.margin=unit(c(0,0,0,0),"mm"),
             legend.position = c(legend_position_plt[1],legend_position_plt[2]),
@@ -205,17 +205,17 @@ plot_data <- function(data_plt,Boundaries,longlow,longhigh,longbreak,latlow,lath
             legend.background = element_rect(colour = alpha('gray50',0.0), fill = alpha('gray50',0.0)),
             legend.text=element_text(size=legend_text_size_plt,color="white",face="bold"),
             legend.key.size = unit(0, 'lines'),
-            legend.margin=margin(t=0, r=0, b=0, l=0, unit="cm"))
+            legend.margin=ggplot2::margin(t=0, r=0, b=0, l=0, unit="cm"))
        else
-         theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
-            axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+         theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+            axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
             axis.text=element_text(size=axis_text_size_plt),
             plot.margin=unit(c(0,0,0,0),"mm"),
             legend.box.spacing = unit(0, "mm"),
             legend.position = "none")}
       else if(mapplace=="toprow")  
       {if(lllegend=="notdone")
-        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
               axis.title.y=element_blank(),
               axis.text.y=element_blank(),
               axis.ticks.y=element_blank(),
@@ -226,9 +226,9 @@ plot_data <- function(data_plt,Boundaries,longlow,longhigh,longbreak,latlow,lath
               legend.background = element_rect(colour = alpha('gray50',0.0), fill = alpha('gray50',0.0)),
               legend.text=element_text(size=legend_text_size_plt,color="white",face="bold"),
               legend.key.size = unit(0, 'lines'),
-              legend.margin=margin(t=0, r=0, b=0, l=0, unit="cm"))
+              legend.margin=ggplot2::margin(t=0, r=0, b=0, l=0, unit="cm"))
       else
-        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
+        theme(axis.title.x=element_text(size=axis_label_size_sslix,face="bold",margin = ggplot2::margin(t = 0, r = space_bt_labelsy, b = space_bt_labelsx, l = 0)),
               axis.title.y=element_blank(),
               axis.text.y=element_blank(),
               axis.ticks.y=element_blank(),
@@ -239,7 +239,7 @@ plot_data <- function(data_plt,Boundaries,longlow,longhigh,longbreak,latlow,lath
               
       else if(mapplace=="sideleft")
         theme(axis.title.x=element_blank(),
-              axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = margin(t = 0, r = 10, b = 0, l = 0)),
+              axis.title.y=element_text(size=axis_label_size_ssliy,face="bold",margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 0)),
               axis.text.x=element_blank(),
               axis.ticks.x=element_blank(),
               legend.box.spacing = unit(0, "mm"),
@@ -265,15 +265,15 @@ plot_data <- function(data_plt,Boundaries,longlow,longhigh,longbreak,latlow,lath
 #OPTIONAL USER INPUTS. Defaults specified. 
 
 #program flow
-run_name <- "dan new ice test"      #name your  output folder. Unique names will generate a folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
+run_name <- "dan function test"      #name your  output folder. Unique names will generate a folder with this name in \\nmfs\akc-nmml\CAEP\Acoustics\ArcMAP\Mapping with R\Output files\. Duplicate names will overwrite that folder. trailing space in string will crash code.
 #to run whole dataset, default next 3 lines to "y", "n", "n" 
 
 ice<-"y" #NEW y/n
 icefast<-"y" #plots quicker but sloppier. Disregard if ice=="n"
 
 run_slides                <-"n"   #NEW
-run_seasonslides          <-"n"   #NEW
-run_month_gifs_and_videos <-"y"   #NEW
+run_seasonslides          <-"y"   #NEW
+run_month_gifs_and_videos <-"n"   #NEW
 run_week_gifs_and_videos  <-"n"   #NEW
 
 
