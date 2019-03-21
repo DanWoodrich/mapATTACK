@@ -331,7 +331,7 @@ framerate_week <- 2                                                   #fps
 gif_month_res <- 100
 gif_week_res <- 60
 slide_res <- 64
-custom_extent <- "n"                                                  #"y" or "n". Will default to extent of etopo1bedrk.tif file if "n".
+custom_extent <- "n"                                                  #"y" or "n". Put "y" if you want to manually specify the lat/long. Will default to extent to extent of current raster file if "n".
 
 raster_color_palette <- c("white",lighten("skyblue1"),darken("skyblue1"),"steelblue4","steelblue4",darken("steelblue4")) #manually define to liking. Can be any length and combination
 dotcolor <- "gold1"                                           #color of presence circles. 
@@ -353,9 +353,6 @@ MAP <- raster(paste(input_folder,"/Rasters/","Bering.tif",sep="")) #Bering is th
 #Import shape files of interest(right whale critical habitat, study boundaries, etc) 
 # Region_vector1 <- c("CHX_area2r","AW_area2r")  # this was for the AW/CHX maps
 #Region_vector1 <- c("DBOregions2017") #NEW (that it's working!)
-
-###################################################
-#This is where you'd put shape files'
 Region_vector1 <- c("SLIP_Hotspot","Chirikov_Hotspot","SECS_Hotspot","NECS_Hotspot") #BSHC = Bering RWCH
 
 #import land (polygon) shapefiles. (should not ever need to change unless plotting other part of world)
