@@ -269,12 +269,12 @@ run_name <- "dan function test"      #name your  output folder. Unique names wil
 #to run whole dataset, default next 3 lines to "y", "n", "n" 
 
 ice<-"y" #NEW y/n
-icefast<-"y" #plots quicker but sloppier. Disregard if ice=="n"
+icefast<-"n" #plots quicker but sloppier. Disregard if ice=="n"
 
 run_slides                <-"n"   #NEW
-run_seasonslides          <-"y"   #NEW
-run_month_gifs_and_videos <-"n"   #NEW
-run_week_gifs_and_videos  <-"n"   #NEW
+run_seasonslides          <-"n"   #NEW
+run_month_gifs_and_videos <-"y"   #NEW
+run_week_gifs_and_videos  <-"y"   #NEW
 
 
 ###################################################
@@ -432,7 +432,7 @@ MAP <- (MAP*-1)+1
 #transform data to create a beautiful depth illusion
 MAP <- log(MAP,2)
 #shift and trim  raster 
-MAP <- shift(rotate(shift(MAP, 180)), 180)
+MAP <- shift(raster::rotate(shift(MAP, 180)), 180)
 
 #Unproject shapefiles 
 Land_vector2 <- lapply(Land_vector1,Import_shp)
@@ -884,7 +884,7 @@ nammme<-c("1","2")
     system(paste('"D:/DDownloads/ffmpeg-20190122-87c165c-win64-static/ffmpeg-20190122-87c165c-win64-static/bin/ffmpeg.exe" -r ',framerate_month,' -i "img%04d.tif" -codec:a libmp3lame ',f,'_month_video.avi',sep=""))
    # system(paste(shQuote("E:/mapATTACK/Accessory code/gifsicle.exe",type="cmd"), " gifsicle -O3 ",f,"_month1.gif -o ",f,"_month.gif",sep=""))
     #system(paste("gifsicle -O3 --colors 256 ",f,"_month1.gif -o ",f,"_month.gif"," -w",sep=""))
-    
+
     file.remove(list.files(pattern=paste(".tif",sep="")))
     #file.remove(list.files(pattern=paste(f,"_month1.gif",sep="")))
   }
